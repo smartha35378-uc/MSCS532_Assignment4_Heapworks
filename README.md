@@ -109,7 +109,3 @@ python priority_queue_scheduler.py
 ## License
 
 Educational use
-
----
-
-*Last Updated: February 16, 2026*
