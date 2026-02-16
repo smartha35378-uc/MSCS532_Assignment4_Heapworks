@@ -106,12 +106,6 @@ python priority_queue_scheduler.py
 - The benchmark uses `time.perf_counter()` for high-precision timing
 - Each algorithm is validated to ensure correctness before timing
 
----
-
-## Author
-
-Created by GitHub Copilot Chat Assistant as part of MSCS 532 coursework
-
 ## License
 
 Educational use
