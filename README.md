@@ -23,7 +23,7 @@ Follow these steps to execute the programs:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repository-link>
+git clone <repository-link>
 cd <repository-folder>
 ```
 
