@@ -1,9 +1,3 @@
-"""
-Assignment 4 - Heaps
-Part 2: Priority Queue implemented with a binary heap (array/list) + scheduler simulation
-Author: <Your Name>
-"""
-
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Dict, Optional

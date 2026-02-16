@@ -1,9 +1,3 @@
-"""
-Assignment 4 - Heaps
-Part 1: Heapsort implementation + empirical comparison vs Quicksort and Merge Sort
-Author: <Your Name>
-"""
-
 from __future__ import annotations
 import random
 import time
