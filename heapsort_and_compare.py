@@ -8,38 +8,46 @@ from typing import List, Callable, Dict, Tuple
 # Heapsort (Max-Heap) - In-place
 # -----------------------------
 def heapify(arr: List[int], n: int, i: int) -> None:
-    """Sift-down at index i in a max-heap within arr[0:n]."""
+    """Sift-down at index i to maintain max-heap property."""
     while True:
         largest = i
-        left = 2 * i + 1
-        right = 2 * i + 2
+        left = 2 * i + 1       # left child index
+        right = 2 * i + 2      # right child index
 
+        # Pick the largest among i, left, right
         if left < n and arr[left] > arr[largest]:
             largest = left
         if right < n and arr[right] > arr[largest]:
             largest = right
 
+        # Stop if i is already the largest
         if largest == i:
             return
 
+        # Swap and continue sifting down
         arr[i], arr[largest] = arr[largest], arr[i]
         i = largest
 
 
 def build_max_heap(arr: List[int]) -> None:
-    """Convert arr into a max-heap in-place."""
+    """Turn the array into a max-heap in-place."""
     n = len(arr)
+
+    # Start from last non-leaf node and heapify down to root
     for i in range(n // 2 - 1, -1, -1):
         heapify(arr, n, i)
 
 
 def heapsort(arr: List[int]) -> List[int]:
-    """In-place heapsort. Returns arr for convenience."""
+    """Heapsort in-place; returns arr for convenience."""
     n = len(arr)
     build_max_heap(arr)
+
+    # Move max (root) to end, then fix heap for remaining part
     for end in range(n - 1, 0, -1):
-        arr[0], arr[end] = arr[end], arr[0]  # move max to the end
-        heapify(arr, end, 0)  # restore heap in arr[0:end]
+        arr[0], arr[end] = arr[end], arr[0]
+        heapify(arr, end, 0)
+
     return arr
 
 
@@ -47,22 +55,32 @@ def heapsort(arr: List[int]) -> List[int]:
 # Merge Sort (returns new list)
 # -----------------------------
 def merge_sort(arr: List[int]) -> List[int]:
+    # Base case: already sorted
     if len(arr) <= 1:
         return arr
+
     mid = len(arr) // 2
+
+    # Split and sort both halves
     left = merge_sort(arr[:mid])
     right = merge_sort(arr[mid:])
+
+    # Merge two sorted halves
     return _merge(left, right)
 
 
 def _merge(a: List[int], b: List[int]) -> List[int]:
     i = j = 0
     out = []
+
+    # Merge by taking the smaller front element each time
     while i < len(a) and j < len(b):
         if a[i] <= b[j]:
             out.append(a[i]); i += 1
         else:
             out.append(b[j]); j += 1
+
+    # Add any leftover elements
     out.extend(a[i:])
     out.extend(b[j:])
     return out
@@ -72,13 +90,17 @@ def _merge(a: List[int], b: List[int]) -> List[int]:
 # Quicksort (simple randomized pivot version)
 # -----------------------------------------
 def quick_sort(arr: List[int]) -> List[int]:
-    """Returns a new sorted list (not in-place) using randomized pivot."""
+    """Returns a new sorted list using a random pivot."""
     if len(arr) <= 1:
         return arr
-    pivot = arr[random.randrange(len(arr))]
+
+    pivot = arr[random.randrange(len(arr))]  # random pivot
+
+    # Partition into < pivot, == pivot, > pivot
     less = [x for x in arr if x < pivot]
     equal = [x for x in arr if x == pivot]
     greater = [x for x in arr if x > pivot]
+
     return quick_sort(less) + equal + quick_sort(greater)
 
 
@@ -86,6 +108,7 @@ def quick_sort(arr: List[int]) -> List[int]:
 # Data generation
 # -----------------------------
 def make_data(n: int, kind: str) -> List[int]:
+    """Create input data in different orders."""
     if kind == "random":
         return [random.randint(0, n) for _ in range(n)]
     if kind == "sorted":
@@ -99,17 +122,22 @@ def make_data(n: int, kind: str) -> List[int]:
 # Benchmarking
 # -----------------------------
 def time_fn(fn: Callable[[List[int]], List[int]], data: List[int], repeats: int = 3) -> float:
-    """Return best time over repeats."""
+    """Return the best runtime across multiple runs."""
     best = float("inf")
+
     for _ in range(repeats):
-        arr = data[:]  # copy so each algorithm gets same input
+        arr = data[:]  # copy for fair comparison
+
         t0 = time.perf_counter()
         out = fn(arr)
-        # Validate correctness quickly
+
+        # Quick correctness check
         if out != sorted(data):
             raise AssertionError(f"{fn.__name__} produced incorrect output")
+
         t1 = time.perf_counter()
         best = min(best, t1 - t0)
+
     return best
 
 
@@ -118,36 +146,46 @@ def run_benchmarks(
     distributions: List[str] = ["random", "sorted", "reverse"],
     repeats: int = 3,
 ) -> Dict[Tuple[int, str], Dict[str, float]]:
+    # Algorithms to benchmark
     algos: Dict[str, Callable[[List[int]], List[int]]] = {
-        "heapsort": lambda a: heapsort(a),   # in-place
+        "heapsort": lambda a: heapsort(a),   # in-place sort
         "mergesort": lambda a: merge_sort(a),
         "quicksort": lambda a: quick_sort(a),
     }
 
     results: Dict[Tuple[int, str], Dict[str, float]] = {}
+
+    # Benchmark each size and distribution
     for n in sizes:
         for dist in distributions:
             data = make_data(n, dist)
             row: Dict[str, float] = {}
+
+            # Time each algorithm on the same input
             for name, fn in algos.items():
                 row[name] = time_fn(fn, data, repeats=repeats)
+
             results[(n, dist)] = row
+
     return results
 
 
 def print_results(results):
+    """Print results in a simple table."""
     print("\n" + "=" * 80)
     print(f"{'Size':<8}{'Type':<10}{'HeapSort(s)':<15}{'MergeSort(s)':<15}{'QuickSort(s)':<15}")
     print("=" * 80)
 
     for (n, dist), row in sorted(results.items()):
-        print(f"{n:<8}{dist:<10}{row['heapsort']:<15.6f}{row['mergesort']:<15.6f}{row['quicksort']:<15.6f}")
+        print(
+            f"{n:<8}{dist:<10}"
+            f"{row['heapsort']:<15.6f}{row['mergesort']:<15.6f}{row['quicksort']:<15.6f}"
+        )
 
     print("=" * 80)
 
 
-
 if __name__ == "__main__":
-    random.seed(42)
+    random.seed(42)  # reproducible random data/pivots
     res = run_benchmarks()
     print_results(res)
